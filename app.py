@@ -182,3 +182,4 @@ with col_graf4:
 st.subheader("Dados Detalhados")
 st.dataframe(df_filtrado)
      
+
