@@ -43,7 +43,21 @@ df_filtrado = df[
 
 # --- Conteúdo Principal ---
 st.title("🎲 Dashboard de Análise de Salários na Área de Dados")
-st.markdown("Explore os dados salariais na área de dados nos últimos anos. Utilize os filtros à esquerda para refinar sua análise.")
+
+st.markdown("""
+Este dashboard tem como objetivo analisar **salários anuais na área de dados**, 
+considerando fatores como cargo, senioridade, tipo de contrato, regime de trabalho,
+tamanho da empresa e país de residência.
+
+Os valores apresentados referem-se a **salários anuais brutos em USD**.
+""")
+
+st.markdown("""
+### 🔎 Metodologia de Análise
+- As análises utilizam **salário anual em USD** como métrica principal  
+- Para comparações entre cargos e países, foi utilizada a **média salarial**  
+- Os dados exibidos respeitam os filtros selecionados na barra lateral
+""")
 
 # --- Métricas Principais (KPIs) ---
 st.subheader("Métricas gerais (Salário anual em USD)")
@@ -57,8 +71,8 @@ else:
     salario_medio, salario_mediano, salario_maximo, total_registros, cargo_mais_comum = 0, 0, 0, ""
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Salário médio", f"${salario_medio:,.0f}")
-col2.metric("Salário máximo", f"${salario_maximo:,.0f}")
+col1.metric("Salário médio anual (USD)", f"${salario_medio:,.0f}")
+col2.metric("Salário máximo anual (USD)", f"${salario_maximo:,.0f}")
 col3.metric("Total de registros", f"{total_registros:,}")
 col4.metric("Cargo mais frequente", cargo_mais_frequente)
 
@@ -71,22 +85,38 @@ col_graf1, col_graf2 = st.columns(2)
 
 with col_graf1:
     if not df_filtrado.empty:
+
+        st.markdown("""
+        **Pergunta de análise:**  
+        Quais cargos apresentam os **maiores salários médios anuais**, considerando os filtros aplicados?
+        """)
+
+
         top_cargos = df_filtrado.groupby('cargo')['usd'].mean().nlargest(10).sort_values(ascending=True).reset_index()
         grafico_cargos = px.bar(
             top_cargos,
             x='usd',
             y='cargo',
             orientation='h',
-            title="Top 10 cargos por salário médio",
+            title="Top 10 cargos por salário médio anual (USD)",
             labels={'usd': 'Média salarial anual (USD)', 'cargo': ''}
+            
         )
         grafico_cargos.update_layout(title_x=0.1, yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(grafico_cargos, use_container_width=True)
     else:
         st.warning("Nenhum dado para exibir no gráfico de cargos.")
+    
+    st.caption("Os valores representam a **média salarial anual** por cargo.")
 
 with col_graf2:
     if not df_filtrado.empty:
+
+        st.markdown("""
+        **Pergunta de análise:**  
+        Como os salários anuais se distribuem na base de dados?
+        """)
+
         grafico_hist = px.histogram(
             df_filtrado,
             x='usd',
@@ -99,10 +129,18 @@ with col_graf2:
     else:
         st.warning("Nenhum dado para exibir no gráfico de distribuição.")
 
+    st.caption("Este gráfico mostra a distribuição dos salários anuais na base analisada.")
+
 col_graf3, col_graf4 = st.columns(2)
 
 with col_graf3:
     if not df_filtrado.empty:
+
+        st.markdown("""
+        **Pergunta de análise:**  
+        Qual a proporção entre os diferentes regimes de trabalho na base analisada?
+        """)
+
         remoto_contagem = df_filtrado['remoto'].value_counts().reset_index()
         remoto_contagem.columns = ['tipo_trabalho', 'quantidade']
         grafico_remoto = px.pie(
@@ -118,8 +156,13 @@ with col_graf3:
     else:
         st.warning("Nenhum dado para exibir no gráfico dos tipos de trabalho.")
 
+    st.caption("Distribuição dos regimes de trabalho considerando os filtros aplicados.")
 with col_graf4:
     if not df_filtrado.empty:
+        st.markdown("""
+        **Pergunta de análise:**  
+        Como varia o **salário médio anual de Cientistas de Dados** entre os países?
+        """)
         df_data_science = df_filtrado[df_filtrado['cargo'].str.contains('Data Scientist', case=False)]
         df_data_science_media_salario = df_data_science.groupby('residencia_iso3')['usd'].mean().sort_values(ascending=False).reset_index()
         grafico_paises = px.choropleth(df_data_science_media_salario,
@@ -132,6 +175,8 @@ with col_graf4:
         st.plotly_chart(grafico_paises, use_container_width=True)
     else:
         st.warning("Nenhum dado para exibir no gráfico de países.")
+    
+    st.caption("Países exibidos em branco não possuem registros na base para o cargo de Cientista de Dados.")
 
 # --- Tabela de Dados Detalhados ---
 st.subheader("Dados Detalhados")
