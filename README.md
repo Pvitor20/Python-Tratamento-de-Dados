@@ -50,7 +50,7 @@ Principais colunas da base:
 ## 🔎 Metodologia de Análise
 
 * As análises utilizam **salário anual em USD** como métrica principal
-* Para comparações entre cargos e países, foi utilizada a **média salarial**, salvo indicação contrária
+* Para comparações entre cargos e países, foi utilizada a **média salarial**
 * Os dados podem ser filtrados dinamicamente por:
 
   * Ano
